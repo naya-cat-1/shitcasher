@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overview</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container">
+    <h2 class="mt-5">数据总览</h2>
+    <div class="row">
+        <div class="col-md-6 mt-3">
+            <canvas id="ageDistributionChart"></canvas>
+        </div>
+        <div class="col-md-6 mt-3">
+            <canvas id="feedbackChart"></canvas>
+        </div>
+        <div class="col-12 mt-3">
+            <canvas id="occupationChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+var feedbackChart;
+document.addEventListener('DOMContentLoaded', function () {
+    var ageCtx = document.getElementById('ageDistributionChart').getContext('2d');
+    var feedbackCtx = document.getElementById('feedbackChart').getContext('2d');
+    var occupationCtx = document.getElementById('occupationChart').getContext('2d');
+
+
+    var ageDistributionChart = new Chart(ageCtx, {
+        type: 'bar',
+        data: {
+            labels: ['<20', '20-25', '26-30', '31-35'], // 年龄分组的标签
+            datasets: [{
+                label: '年龄分布',
+                data: [14, 255, 94, 25], // 每个年龄分组的人数
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {  // 从 'yAxes: [{...}]' 改为 'y: {...}'
+                    ticks: {
+                        beginAtZero: true  // 从0开始显示Y轴
+                    }
+                }
+            },
+            onClick: function(event, elements) {  // 点击事件函数
+                if (elements.length > 0) {
+                    var ageIndex = elements[0].index;  // 获取被点击的条形的索引
+                    var ageLabel = this.data.labels[ageIndex];  // 使用索引来获取相应的标签（年龄段）
+                    // 一旦点击某个条形，就调用更新饼状图的函数
+                    updateFeedbackPieChart(ageLabel);
+                }
+            }
+        }
+
+    });
+
+
+    // Feedback Chart初始化，数据设置为默认值
+    feedbackChart = new Chart(feedbackCtx, {
+        type: 'pie',
+        data: {
+            labels: ['好评', '差评'],
+            datasets: [{
+                data: [317, 71],  // 初始化为默认值
+                backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+                borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
+                borderWidth: 1
+            }]
+        }
+    });
+
+
+    // Occupation Chart
+    var occupationChart = new Chart(occupationCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ occupation_distribution.keys() | list | tojson }},
+            datasets: [{
+                label: 'Occupation Distribution',
+                data: {{ occupation_distribution.values() | list | tojson }},
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1
+            }]
+        }
+    });
+});
+function updateFeedbackPieChart(ageLabel) {
+    fetch(`/feedback-by-age?ageGroup=${encodeURIComponent(ageLabel)}`)
+    .then(response => response.json())
+    .then(data => {
+        if(feedbackChart && feedbackChart.data && feedbackChart.data.datasets) {
+            feedbackChart.data.datasets[0].data = [data.positive, data.negative];
+            feedbackChart.update();
+        } else {
+            console.error('Feedback chart is not initialized properly.');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+
+</script>
+</body>
+</html>

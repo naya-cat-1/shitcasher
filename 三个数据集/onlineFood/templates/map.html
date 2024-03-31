@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full-Screen Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        /* 设置body和html的高度和宽度为100%，去除默认的margin */
+        body, html {
+            height: 100%;
+            margin: 0;
+        }
+        /* 设置地图容器占满整个页面 */
+        #map {
+            height: 100%;
+            width: 100vw; /* 视口宽度 */
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var map = L.map('map').setView([12.9716, 77.5946], 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // 从 Flask 传递的数据中获取地理位置和反馈
+        var feedbackData = {{ feedback_data | safe }};
+
+        feedbackData.forEach(function(item) {
+            L.marker([item.latitude, item.longitude])
+                .addTo(map)
+                .bindPopup(`<b>Feedback:</b> ${item.Feedback}`);
+        });
+    });
+</script>
+</body>
+</html>
