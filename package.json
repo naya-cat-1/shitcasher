@@ -1,6 +1,6 @@
 {
   "name": "shitcasher",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "casher shit",
   "main": "index.js",
   "scripts": {
