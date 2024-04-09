@@ -1,6 +1,6 @@
 {
   "name": "shitcasher",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "casher shit",
   "main": "index.js",
   "scripts": {
@@ -27,7 +27,8 @@
     "vue": "^3.4.21"
   },
   "dependencies": {
-    "vue": "^3.4.21"
+    "vue": "^3.4.21",
+    "ipc-explorer":"^0.0.0"
   },
   "bugs": {
     "url": "https://github.com/naya-cat-1/shitcasher/issues"
